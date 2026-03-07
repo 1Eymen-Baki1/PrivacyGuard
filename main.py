@@ -2,62 +2,64 @@ import requests
 import json
 import time
 
-class Renk:
-    YESIL = '\033[92m'
-    KIRMIZI = '\033[91m'
+class Colors:
+    GREEN = '\033[92m'
+    RED = '\033[91m'
     CYAN = '\033[96m'
-    SARI = '\033[93m'
-    KALIN = '\033[1m'
-    SIFIRLA = '\033[0m'
+    YELLOW = '\033[93m'
+    BOLD = '\033[1m'
+    RESET = '\033[0m'
 
-#YOUR API İS HERE (studio.google.com)
-API_KEY = "API_HERE"
+# Get your API key from https://aistudio.google.com/
+API_KEY = "YOUR_API_KEY_HERE"
 
 url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
 
-ornek_politika = """
-Hizmet kalitesini artırmak için kullanıcıların uygulama içindeki tıklama alışkanlıklarını ve cihaz model bilgilerini kaydediyoruz. 
-Konum bilgileriniz, yalnızca yerel içerikleri göstermek amacıyla siz izin verdiğiniz sürece kullanılır. 
-Kişisel bilgileriniz üçüncü taraflara doğrudan satılmaz, ancak anonimleştirilmiş veriler istatistiksel analizler için kullanılabilir. 
-Kullanıcılar istedikleri zaman veri paylaşımını ayarlar kısmından kısıtlayabilirler.
+# Example Policy Text to Test
+policy_text = """
+(your_app_policy)
 """
 
-komut = f"""
-Sen uzman bir veri güvenliği avukatısın. Kullanıcıyı uyarmak için çıktını çok şatafatlı, bol emojili ve dikkat çekici bir formatta hazırla.
+# AI Prompt Configuration
+prompt = f"""
+You are an expert Data Privacy Lawyer. Your goal is to warn users by creating a flashy, emoji-rich, and eye-catching analysis.
 
-Şu kurallara KESİNLİKLE uy:
-1. 🎯 RİSK SKORU: 1 ile 10 arası bir puan ver. Puanın yanına risk durumuna göre (🟢 Güvenli, 🟡 Dikkat, 🔴 Tehlike) emojilerinden birini koy.
-2. 📝 KISA ÖZET: En kritik 3 maddeyi listele. Her maddenin başına o maddeyle uyumlu çarpıcı bir emoji (🚨, 👁️, 🕵️‍♂️, 📍 vb.) ekle.
-3. Çıktı çok temiz, kolay okunabilir ve modern görünsün.
+Strictly follow these rules:
+1. 🎯 RISK SCORE: Provide a score between 1 and 10. Next to the score, use one of these emojis based on risk: (🟢 Safe, 🟡 Caution, 🔴 Danger).
+2. 📝 SHORT SUMMARY: List the 3 most critical points. Add a striking emoji (🚨, 👁️, 🕵️‍♂️, 📍, etc.) at the beginning of each point.
+3. The output must be very clean, easy to read, and modern.
 
-İncelenecek Metin: {ornek_politika}
+Text to Analyze: {policy_text}
 """
 
-veri_paketi = {
-    "contents": [{"parts": [{"text": komut}]}]
+payload = {
+    "contents": [{"parts": [{"text": prompt}]}]
 }
-basliklar = {'Content-Type': 'application/json'}
+headers = {'Content-Type': 'application/json'}
 
-print(f"\n{Renk.CYAN}{Renk.KALIN}🛡️ PrivacyGuard AI Başlatılıyor...{Renk.SIFIRLA}")
+# Stylish CLI Boot Sequence
+print(f"\n{Colors.CYAN}{Colors.BOLD}🛡️ PrivacyGuard AI Initializing...{Colors.RESET}")
 time.sleep(1)
-print(f"{Renk.SARI}🔍 Gizlilik politikası taranıyor...{Renk.SIFIRLA}")
+print(f"{Colors.YELLOW}🔍 Scanning privacy policy...{Colors.RESET}")
 time.sleep(1.5)
-print(f"{Renk.YESIL}⚙️ Yapay zeka analizi tamamlandı! Sonuçlar ekrana yansıtılıyor...\n{Renk.SIFIRLA}")
-print(f"{Renk.KIRMIZI}{Renk.KALIN}{'-' * 50}{Renk.SIFIRLA}\n")
+print(f"{Colors.GREEN}⚙️ AI analysis complete! Displaying results...\n{Colors.RESET}")
+print(f"{Colors.RED}{Colors.BOLD}{'-' * 50}{Colors.RESET}\n")
 
 try:
-    cevap = requests.post(url, headers=basliklar, data=json.dumps(veri_paketi))
+    # Sending the Request
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
     
-    if cevap.status_code == 200:
-        gelen_veri = cevap.json()
-        ai_metni = gelen_veri['candidates'][0]['content']['parts'][0]['text']
+    if response.status_code == 200:
+        data = response.json()
+        ai_output = data['candidates'][0]['content']['parts'][0]['text']
         
-       
-        print(f"{Renk.KALIN}{ai_metni}{Renk.SIFIRLA}")
+        # Printing AI Analysis
+        print(f"{Colors.BOLD}{ai_output}{Colors.RESET}")
     else:
-        print(f"{Renk.KIRMIZI}❌ Sunucu Hatası: {cevap.status_code}{Renk.SIFIRLA}")
+        print(f"{Colors.RED}❌ Server Error: {response.status_code}{Colors.RESET}")
+        print(response.text)
         
-except Exception as hata:
-    print(f"{Renk.KIRMIZI}❌ Bir bağlantı hatası oluştu: {hata}{Renk.SIFIRLA}")
+except Exception as error:
+    print(f"{Colors.RED}❌ Connection Error: {error}{Colors.RESET}")
 
-print(f"\n{Renk.KIRMIZI}{Renk.KALIN}{'-' * 50}{Renk.SIFIRLA}\n")
+print(f"\n{Colors.RED}{Colors.BOLD}{'-' * 50}{Colors.RESET}\n")
